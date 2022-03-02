@@ -4,5 +4,5 @@ from django.db import models
 class todoList(models.Model):
     task = models.CharField(max_length=100,blank=True,null=True)
 
-    def __str__(self):
-        return self.task
+    # def __str__(self):
+    #     return self.task
