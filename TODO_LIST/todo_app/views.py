@@ -1,18 +1,19 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,Http404
 from django.http import JsonResponse
 
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication,TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import taskSerializer
 from .models import todoList
 # Create your views here.
 
 class taskCreateView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self,request):
@@ -28,30 +29,21 @@ class taskListView(APIView):
         tasks = todoList.objects.all().order_by('-id')
         serializer = taskSerializer(tasks, many=True)
         return Response(serializer.data)         
-    
-class taskDetailView(APIView):
 
-    def get_object(self,pk):
-        try:
-            return todoList.objects.get(id=pk)
-            # serializer = taskSerializer(task, many=False)
-            # return Response(serializer.data,status=status.HTTP_200_OK)
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def get(self,request,pk):
-        task = self.get_object(pk)
-        serializer = taskSerializer(task, many=False)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-
-class taskEditView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+class taskDetailsView(APIView):
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    def get_object(self,pk):
+    
+    def get_object(self, pk):
         try:
             return todoList.objects.get(id=pk)
         except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise Http404()
+
+    def get(self, request, pk, format=None):
+        task = self.get_object(pk)
+        serializer = taskSerializer(task)
+        return Response(serializer.data)
 
     def put(self, request, pk, format=None):
         task = self.get_object(pk)
@@ -61,31 +53,38 @@ class taskEditView(APIView):
             return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class taskDeleteView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-    def get_object(self,pk):
-        try:
-            return todoList.objects.get(id=pk)
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
     def delete(self, request, pk, format=None):
         task = self.get_object(pk)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# class documentationCode(APIView):
-#     def get_object(self, pk):
+
+
+
+
+# class taskDetailView(APIView):
+
+#     def get_object(self,pk):
+#         try:
+#             return todoList.objects.get(id=pk)
+#             # serializer = taskSerializer(task, many=False)
+#             # return Response(serializer.data,status=status.HTTP_200_OK)
+#         except:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     def get(self,request,pk):
+#         task = self.get_object(pk)
+#         serializer = taskSerializer(task, many=False)
+#         return Response(serializer.data,status=status.HTTP_200_OK)
+
+# class taskEditView(APIView):
+#     authentication_classes = [SessionAuthentication, BasicAuthentication]
+#     permission_classes = [IsAuthenticated]
+#     def get_object(self,pk):
 #         try:
 #             return todoList.objects.get(id=pk)
 #         except:
-#             raise Http404
-
-#     def get(self, request, pk, format=None):
-#         task = self.get_object(pk)
-#         serializer = taskSerializer(task)
-#         return Response(serializer.data)
+#             return Response(status=status.HTTP_404_NOT_FOUND)
 
 #     def put(self, request, pk, format=None):
 #         task = self.get_object(pk)
@@ -95,13 +94,19 @@ class taskDeleteView(APIView):
 #             return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# class taskDeleteView(APIView):
+#     authentication_classes = [SessionAuthentication, BasicAuthentication]
+#     permission_classes = [IsAuthenticated]
+#     def get_object(self,pk):
+#         try:
+#             return todoList.objects.get(id=pk)
+#         except:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+
 #     def delete(self, request, pk, format=None):
 #         task = self.get_object(pk)
 #         task.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
 # @api_view(['GET'])
 # def taskList(request):
 #     tasks = todoList.objects.all().order_by('-id')
