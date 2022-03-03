@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import todoList
+
 class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         style={"input_type": "password"}, write_only=True)
@@ -33,4 +34,4 @@ class UserSerializer(serializers.ModelSerializer):
 class taskSerializer(serializers.ModelSerializer):
     class Meta:
         model = todoList
-        fields = '__all__'
+        fields = ['id','task']
