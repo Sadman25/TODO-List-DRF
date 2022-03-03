@@ -38,6 +38,8 @@ class userLoginView(GenericAPIView):
         print(request.data["password"])
         if user is not None:
             login(request, user)
+            return Response(status=status.HTTP_202_ACCEPTED)
+            
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
