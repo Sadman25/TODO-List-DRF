@@ -2,6 +2,7 @@ from django.shortcuts import render,HttpResponse,Http404
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib.auth.models import User
+import re
 
 
 from rest_framework import status
@@ -53,9 +54,13 @@ class taskCreateView(APIView):
     def post(self,request):
         try:            
             newTask  = request.data["task"] 
-            print(request.user)       
-            todoList.objects.create(task=newTask, user=request.user)            
-            return Response(status=status.HTTP_202_ACCEPTED)
+            
+            regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+            if(regex.search(newTask)==None):
+                todoList.objects.create(task=newTask, user=request.user)            
+                return Response(status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response('No special characters are allowed',status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 class taskListView(APIView):

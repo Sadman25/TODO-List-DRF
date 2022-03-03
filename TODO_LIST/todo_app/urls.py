@@ -11,10 +11,10 @@ urlpatterns = [
     # path('taskDelete/<str:pk>/',views.taskDelete,name='taskDelete'),
 
     path('',views.taskListView.as_view()),
-    path('/userLogin',views.userLoginView.as_view()),
-    path('/userRegistration',views.userRegistrationView.as_view()),
-    path('/taskCreate',views.taskCreateView.as_view()),
-    path('/taskDetails/<str:pk>/',views.taskDetailsView.as_view()),
+    path('userLogin',views.userLoginView.as_view()),
+    path('userRegistration',views.userRegistrationView.as_view()),
+    path('taskCreate',views.taskCreateView.as_view()),
+    path('taskDetails/<str:pk>/',views.taskDetailsView.as_view()),
     
     
     

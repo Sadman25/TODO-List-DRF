@@ -36,5 +36,4 @@ class taskSerializer(serializers.ModelSerializer):
         model = todoList
         fields = ['id','task']
 
-    def clean_task():
-        cleaned_data = self.cleaned_data['task']
+    
