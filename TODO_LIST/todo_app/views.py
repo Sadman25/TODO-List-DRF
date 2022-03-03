@@ -1,5 +1,7 @@
 from django.shortcuts import render,HttpResponse,Http404
 from django.http import JsonResponse
+from django.contrib.auth import authenticate, login, logout 
+
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -7,9 +9,38 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication,TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import taskSerializer
+from rest_framework.generics import GenericAPIView
+from .serializers import taskSerializer,UserSerializer,LoginSerializer
 from .models import todoList
 # Create your views here.
+
+class userRegistrationView(GenericAPIView):
+    
+    serializer_class = UserSerializer
+    
+    def post(self,request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class userLoginView(GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self,request):
+        serializer = LoginSerializer(data=request.data)
+
+        user = authenticate(request,username=request.data["username"], password=request.data["password"])
+        print(request.data["username"])
+        print(request.data["password"])
+        if user is not None:
+            login(request, user)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class taskCreateView(APIView):
     # authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -24,7 +55,7 @@ class taskCreateView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class taskListView(APIView):
-    
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
     def get(self,request):
         tasks = todoList.objects.all().order_by('-id')
         serializer = taskSerializer(tasks, many=True)
